@@ -19,6 +19,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-n', '--network', type=str, choices=network.SUPPORTED_NETWORKS, help='Select the network to use for training')
 parser.add_argument('-o', '--optimizer', type=str, choices=network.SUPPORTED_OPTIMIZERS, help='Select the optimizer to use for training')
 parser.add_argument('-es', '--early_stopping', dest='early_stopping', action='store_true', help='Stop training training when validation accuracy has stopped improving.')
+parser.add_argument('-lr', '--learning_rate', type=float, default=0.001, help='Increase the rate of gradient step size by increasing value.')
 args = parser.parse_args()
 
 bugs = utils.get_bugs()
@@ -77,7 +78,7 @@ validation_iterator = utils.CouplesIterator(utils.make_infinite(gen_func, images
 test_iterator = utils.CouplesIterator(utils.make_infinite(gen_func, images_test), input_shape, data_gen, BATCH_SIZE)
 
 model = network.create(input_shape, args.network)
-network.compile(model, args.optimizer)
+network.compile(model, args.optimizer, args.learning_rate)
 
 callbacks_list = [ModelCheckpoint('best_pretrain_model.hdf5', monitor='val_accuracy', verbose=1, save_best_only=True, mode='max')]
 
