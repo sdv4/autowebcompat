@@ -1,4 +1,5 @@
 from keras import backend as K
+from keras import regularizers
 from keras.applications.resnet50 import ResNet50
 from keras.applications.vgg16 import VGG16
 from keras.applications.vgg19 import VGG19
@@ -18,7 +19,7 @@ from keras.optimizers import Adam
 from keras.optimizers import Nadam
 from keras.optimizers import RMSprop
 
-SUPPORTED_NETWORKS = ['inception', 'vgglike', 'vgg16', 'vgg19', 'simnet', 'simnetlike', 'resnet50']
+SUPPORTED_NETWORKS = ['inception', 'vgglike', 'vgg16', 'vgg16true', 'vgg19', 'simnet', 'simnetlike', 'resnet50']
 SUPPORTED_OPTIMIZERS = {
     'sgd': SGD(lr=0.0003, decay=1e-6, momentum=0.9, nesterov=True),
     'adam': Adam(),
@@ -84,7 +85,7 @@ def create_vgglike_network(input_shape, weights):
     return Model(input, x)
 
 
-def create_regularized_vgg16_network(input_shape, weights, dropout = 0.5, l2_regularization = 0.001):
+def create_vgg16true_network(input_shape, weights, dropout = 0.5, l2_reg_strength = 0.001):
     '''
     Implementation of VGG16 as specified in the original paper by Simonyan
     and Zisserman. Differs from keras' Applications.VGG16 in that it includes
@@ -95,8 +96,32 @@ def create_regularized_vgg16_network(input_shape, weights, dropout = 0.5, l2_reg
     Returns:
     '''
 
-    model = Sequential
-    return model
+    model = Sequential()
+    model.add(Conv2D(64, (3,3), input_shape = input_shape, padding = 'same', activation = 'relu'))
+    model.add(Conv2D(64, (3,3), padding = 'same', activation = 'relu'))
+    model.add(MaxPooling2D(pool_size = (2,2), strides = (2,2)))
+    model.add(Conv2D(128, (3,3), padding = 'same', activation = 'relu'))
+    model.add(Conv2D(128, (3,3), padding = 'same', activation = 'relu'))
+    model.add(MaxPooling2D(pool_size = (2,2), strides = (2,2)))
+    model.add(Conv2D(256, (3,3), padding = 'same', activation = 'relu'))
+    model.add(Conv2D(256, (3,3), padding = 'same', activation = 'relu'))
+    model.add(Conv2D(256, (3,3), padding = 'same', activation = 'relu'))
+    model.add(MaxPooling2D(pool_size = (2,2), strides = (2,2)))
+    model.add(Conv2D(512, (3,3), padding = 'same', activation = 'relu'))
+    model.add(Conv2D(512, (3,3), padding = 'same', activation = 'relu'))
+    model.add(Conv2D(512, (3,3), padding = 'same', activation = 'relu'))
+    model.add(MaxPooling2D(pool_size = (2,2), strides = (2,2)))
+    model.add(Conv2D(512, (3,3), padding = 'same', activation = 'relu'))
+    model.add(Conv2D(512, (3,3), padding = 'same', activation = 'relu'))
+    model.add(Conv2D(512, (3,3), padding = 'same', activation = 'relu'))
+    model.add(MaxPooling2D(pool_size = (2,2), strides = (2,2)))
+    model.add(Flatten())
+    model.add(Dense(4096, activation = 'relu', kernel_regularizer = regularizers.l2(l2_reg_strength)))
+    model.add(Dropout(dropout))
+    model.add(Dense(4096, activation = 'relu', kernel_regularizer = regularizers.l2(l2_reg_strength)))
+    model.add(Dropout(dropout))
+    model.add(Dense(1000, activation = 'softmax'))
+    return Model(inputs = model.input, outputs = model.output)
 
 def create_simnet_network(input_shape, weights):
     L2_REGULARIZATION = 0.001
