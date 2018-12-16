@@ -12,6 +12,7 @@ from keras.layers import Lambda
 from keras.layers import MaxPooling2D
 from keras.layers import concatenate
 from keras.models import Model
+from keras.models import Sequential
 from keras.optimizers import SGD
 from keras.optimizers import Adam
 from keras.optimizers import Nadam
@@ -50,7 +51,7 @@ def create_mlp(input_shape, weights):
 
 
 def create_vgg16_network(input_shape, weights):
-    base_model = VGG16(input_shape=input_shape, weights=weights)
+    base_model = VGG16(weights=weights)
     return Model(inputs=base_model.input, outputs=base_model.get_layer('fc2').output)
 
 
@@ -82,6 +83,20 @@ def create_vgglike_network(input_shape, weights):
 
     return Model(input, x)
 
+
+def create_regularized_vgg16_network(input_shape, weights, dropout = 0.5, l2_regularization = 0.001):
+    '''
+    Implementation of VGG16 as specified in the original paper by Simonyan
+    and Zisserman. Differs from keras' Applications.VGG16 in that it includes
+    regularization and dropout on the first two fully connected layers.
+
+    Args:
+
+    Returns:
+    '''
+
+    model = Sequential
+    return model
 
 def create_simnet_network(input_shape, weights):
     L2_REGULARIZATION = 0.001
