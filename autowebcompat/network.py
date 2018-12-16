@@ -52,7 +52,7 @@ def create_mlp(input_shape, weights):
 
 
 def create_vgg16_network(input_shape, weights):
-    base_model = VGG16(weights=weights)
+    base_model = VGG16(input_shape = input_shape, weights=weights)
     return Model(inputs=base_model.input, outputs=base_model.get_layer('fc2').output)
 
 
@@ -85,11 +85,15 @@ def create_vgglike_network(input_shape, weights):
     return Model(input, x)
 
 
-def create_vgg16true_network(input_shape, weights, dropout, l2_reg_strength):
+def create_vgg16true_network(input_shape, weights, dropout = 0.5, l2_reg_strength = 0.001):
     '''
     Implementation of VGG16 as specified in the original paper by Simonyan
     and Zisserman. Differs from keras' Applications.VGG16 in that it includes
     regularization and dropout on the first two fully connected layers.
+
+    Args:
+
+    Returns:
     '''
 
     model = Sequential()
@@ -236,10 +240,12 @@ def create(input_shape, network='vgglike', weights=None, builtin_weights=None, d
         assert network in SUPPORTED_NETWORKS_WITH_WEIGHTS, '%s does not have weights for %s ' % (network, builtin_weights)
 
     network_func = globals()['create_%s_network' % network]
-    if dropout != None and l2_reg_strength != None:
+    if network == 'vgg16true':
         base_network = network_func(input_shape, builtin_weights, dropout, l2_reg_strength)
     else:
         base_network = network_func(input_shape, builtin_weights)
+
+
 
     input_a = Input(shape=input_shape)
     input_b = Input(shape=input_shape)

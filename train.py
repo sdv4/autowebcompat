@@ -25,7 +25,7 @@ parser.add_argument('-ct', '--classification_type', type=str, choices=utils.CLAS
 parser.add_argument('-es', '--early_stopping', dest='early_stopping', action='store_true', help='Stop training training when validation accuracy has stopped improving.')
 parser.add_argument('-lr', '--learning_rate', type=float, default=0.001, help='Increase the rate of gradient step size by increasing value.')
 parser.add_argument('-do', '--dropout', type=float, default=0.5, help='Increase the rate of regularization by increasing percentage of nodes to drop')
-parser.add_argument('-ls', '--l2_strength', type=float, default=0.01, help='Increase the rate of gradient step size by increasing value.')
+parser.add_argument('-ls', '--l2_strength', type=float, default=0.01, help='Increase to increase the regularization strength.')
 
 args = parser.parse_args()
 
