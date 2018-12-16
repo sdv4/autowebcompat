@@ -85,15 +85,11 @@ def create_vgglike_network(input_shape, weights):
     return Model(input, x)
 
 
-def create_vgg16true_network(input_shape, weights, dropout = 0.5, l2_reg_strength = 0.001):
+def create_vgg16true_network(input_shape, weights, dropout, l2_reg_strength):
     '''
     Implementation of VGG16 as specified in the original paper by Simonyan
     and Zisserman. Differs from keras' Applications.VGG16 in that it includes
     regularization and dropout on the first two fully connected layers.
-
-    Args:
-
-    Returns:
     '''
 
     model = Sequential()
@@ -232,7 +228,7 @@ def create_resnet50_network(input_shape, weights):
     return Model(inputs=base_model.input, outputs=base_model.get_layer('flatten_1').output)
 
 
-def create(input_shape, network='vgglike', weights=None, builtin_weights=None):
+def create(input_shape, network='vgglike', weights=None, builtin_weights=None, dropout = None, l2_reg_strength = None):
     assert network in SUPPORTED_NETWORKS, '%s is an invalid network' % network
     assert weights is None or builtin_weights is None, 'only one type of weights are allowed at once'
 
@@ -240,7 +236,10 @@ def create(input_shape, network='vgglike', weights=None, builtin_weights=None):
         assert network in SUPPORTED_NETWORKS_WITH_WEIGHTS, '%s does not have weights for %s ' % (network, builtin_weights)
 
     network_func = globals()['create_%s_network' % network]
-    base_network = network_func(input_shape, builtin_weights)
+    if dropout != None and l2_reg_strength != None:
+        base_network = network_func(input_shape, builtin_weights, dropout, l2_reg_strength)
+    else:
+        base_network = network_func(input_shape, builtin_weights)
 
     input_a = Input(shape=input_shape)
     input_b = Input(shape=input_shape)

@@ -24,6 +24,9 @@ parser.add_argument('-bw', '--builtin_weights', type=str, choices=network.SUPPOR
 parser.add_argument('-ct', '--classification_type', type=str, choices=utils.CLASSIFICATION_TYPES, default=utils.CLASSIFICATION_TYPES[0], help='Select the classification_type for training')
 parser.add_argument('-es', '--early_stopping', dest='early_stopping', action='store_true', help='Stop training training when validation accuracy has stopped improving.')
 parser.add_argument('-lr', '--learning_rate', type=float, default=0.001, help='Increase the rate of gradient step size by increasing value.')
+parser.add_argument('-do', '--dropout', type=float, default=0.5, help='Increase the rate of regularization by increasing percentage of nodes to drop')
+parser.add_argument('-ls', '--l2_strength', type=float, default=0.01, help='Increase the rate of gradient step size by increasing value.')
+
 args = parser.parse_args()
 
 
@@ -82,7 +85,7 @@ train_iterator = utils.CouplesIterator(utils.make_infinite(gen_func, images_trai
 validation_iterator = utils.CouplesIterator(utils.make_infinite(gen_func, images_validation), input_shape, data_gen, BATCH_SIZE)
 test_iterator = utils.CouplesIterator(utils.make_infinite(gen_func, images_test), input_shape, data_gen, BATCH_SIZE)
 
-model = network.create(input_shape, args.network, args.weights, args.builtin_weights)
+model = network.create(input_shape, args.network, args.weights, args.builtin_weights, args.dropout, args.l2_strength)
 network.compile(model, args.optimizer, args.learning_rate)
 
 timer = Timer()
