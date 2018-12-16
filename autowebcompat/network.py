@@ -90,10 +90,6 @@ def create_vgg16true_network(input_shape, weights, dropout = 0.5, l2_reg_strengt
     Implementation of VGG16 as specified in the original paper by Simonyan
     and Zisserman. Differs from keras' Applications.VGG16 in that it includes
     regularization and dropout on the first two fully connected layers.
-
-    Args:
-
-    Returns:
     '''
 
     model = Sequential()
@@ -120,7 +116,6 @@ def create_vgg16true_network(input_shape, weights, dropout = 0.5, l2_reg_strengt
     model.add(Dropout(dropout))
     model.add(Dense(4096, activation = 'relu', kernel_regularizer = regularizers.l2(l2_reg_strength)))
     model.add(Dropout(dropout))
-    model.add(Dense(1000, activation = 'softmax'))
     return Model(inputs = model.input, outputs = model.output)
 
 def create_simnet_network(input_shape, weights):
