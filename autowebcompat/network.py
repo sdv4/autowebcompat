@@ -18,13 +18,15 @@ from keras.optimizers import SGD
 from keras.optimizers import Adam
 from keras.optimizers import Nadam
 from keras.optimizers import RMSprop
+from keras.optimizers import Adagrad
 
 SUPPORTED_NETWORKS = ['inception', 'vgglike', 'vgg16', 'vgg16true', 'vgg19', 'simnet', 'simnetlike', 'resnet50']
 SUPPORTED_OPTIMIZERS = {
     'sgd': SGD(lr=0.0003, decay=1e-6, momentum=0.9, nesterov=True),
     'adam': Adam(),
     'nadam': Nadam(),
-    'rms': RMSprop()
+    'rms': RMSprop(),
+    'adagrad': Adagrad()
 }
 SUPPORTED_WEIGHTS = ['imagenet']
 SUPPORTED_NETWORKS_WITH_WEIGHTS = ['vgg16', 'vgg19', 'resnet50']
@@ -277,12 +279,16 @@ def accuracy(y_true, y_pred):
     return K.mean(K.equal(y_true, K.cast(y_pred < 0.5, y_true.dtype)))
 
 
-def compile(model, optimizer='sgd', learning_rate=0.001, loss_func=contrastive_loss):
+def compile(model, optimizer, learning_rate, decay, momentum, nesterov, epsilon, loss_func=contrastive_loss):
     assert optimizer in SUPPORTED_OPTIMIZERS, '%s is an invalid optimizer' % optimizer
     if optimizer == 'sgd':
-        opt = SGD(lr=learning_rate, decay=1e-6, momentum=0.9, nesterov=True)
+        opt = SGD(lr=learning_rate, decay=decay, momentum=momentum, nesterov=nesterov)
     elif optimizer == 'rms':
         opt = RMSprop(lr=learning_rate)
+    elif optimizer == 'adam':
+        opt = Adam(lr=learning_rate, epsilon=epsilon, decay=decay)
+    elif optimizer == 'adagrad':
+        opt = Adagrad(lr=learning_rate, decay=decay)
     else:
         opt = SUPPORTED_OPTIMIZERS[optimizer]
 
