@@ -11,10 +11,6 @@ from sklearn.metrics import confusion_matrix
 from autowebcompat import network
 from autowebcompat import utils
 
-BATCH_SIZE = 32
-EPOCHS = 50
-random.seed(42)
-
 parser = argparse.ArgumentParser()
 parser.add_argument('-n', '--network', type=str, choices=network.SUPPORTED_NETWORKS, help='Select the network to use for training')
 parser.add_argument('-l', '--labels', type=str, default='labels.csv', help='Location of labels file to be used for training')
@@ -32,9 +28,12 @@ parser.add_argument('-m', '--momentum', type=float, default=0.9, help='Increase 
 parser.add_argument('-nest', '--nesterov', type=bool, default=True, help='Use True to apply nesterov momentum')
 parser.add_argument('-d', '--decay', type=float, default=1e-6, help='Increase to speed up the rate at which the learning rate shrinks')
 parser.add_argument('-e', '--epsilon', type=float, default=None, help='Fuzz factor, for use with Adam and Adagrad optimizers')
-
+parser.add_argument('-ep', '--epochs', type=int, default=50, help='The number of epochs used in stochastic based training.')
 args = parser.parse_args()
 
+EPOCHS = args.epochs
+BATCH_SIZE = 32
+random.seed(42)
 
 class Timer(Callback):
     def on_train_begin(self, logs={}):
