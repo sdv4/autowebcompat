@@ -1,7 +1,7 @@
 import argparse
 import random
 import time
-
+import gc
 from keras.callbacks import Callback
 from keras.callbacks import EarlyStopping
 from keras.callbacks import ModelCheckpoint
@@ -179,3 +179,4 @@ for s in reversed(range(s_max+1)):
         vl = np.argsort(val_losses)[0:int(n_i/eta)]
         vl = np.array(vl)
         T = [T[i] for i in vl]
+        gc.collect()
