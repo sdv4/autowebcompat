@@ -25,8 +25,8 @@ def get_random_hp_config():
     hp.append(np.exp(random.uniform(np.log(0.0000001), np.log(0.0001)))) #l2 weight decay 2
     hp.append(random.uniform(0.6, 1)) #momentum
     hp.append(random.choice([True, False])) #nesterov
-    hp.append(random.uniform(0.0000001, 0.00001)) #decay
-    hp.append(random.uniform(0.000000001, 0.0000001)) #epsilon
+    hp.append(np.exp(random.uniform(np.log(0.0000001), np.log(0.00001)))) #decay
+    hp.append(np.exp(random.uniform(np.log(0.000000001), np.log(0.0000001)))) #epsilon
     return hp
 
 
@@ -116,11 +116,11 @@ def run_and_loss(num_iters, hp):
     timer = Timer()
     callbacks_list = [ModelCheckpoint('best_train_model.hdf5', monitor='val_accuracy', verbose=1, save_best_only=True, mode='max'), timer]
 
-    callbacks_list.append(EarlyStopping(monitor='val_accuracy', patience=2))
+    callbacks_list.append(EarlyStopping(monitor='val_accuracy', patience=6))
 
     train_history = model.fit_generator(train_iterator, callbacks=callbacks_list, validation_data=validation_iterator, steps_per_epoch=train_couples_len / BATCH_SIZE, validation_steps=validation_couples_len / BATCH_SIZE, epochs=EPOCHS)
     score = model.evaluate_generator(test_iterator, steps=test_couples_len / BATCH_SIZE)
-    print(score[0])
+    print(score)
 
     y_true, y_pred = [], []
     for i, (x, y) in enumerate(test_iterator):
