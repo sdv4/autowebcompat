@@ -1,7 +1,6 @@
 import argparse
 import random
 import time
-import gc
 from keras.callbacks import Callback
 from keras.callbacks import EarlyStopping
 from keras.callbacks import ModelCheckpoint
@@ -11,6 +10,8 @@ from sklearn.metrics import confusion_matrix
 from autowebcompat import network
 from autowebcompat import utils
 
+BATCH_SIZE = 32
+random.seed(42)
 
 
 def get_random_hp_config():
@@ -26,24 +27,6 @@ def get_random_hp_config():
     hp.append(random.choice([True, False])) #nesterov
     hp.append(random.uniform(0.0000001, 0.00001)) #decay
     hp.append(random.uniform(0.000000001, 0.0000001)) #epsilon
-    '''
-parser.add_argument('-n', '--network', type=str, choices=network.SUPPORTED_NETWORKS, help='Select the network to use for training')
-parser.add_argument('-l', '--labels', type=str, default='labels.csv', help='Location of labels file to be used for training')
-parser.add_argument('-o', '--optimizer', type=str, choices=network.SUPPORTED_OPTIMIZERS, default='sgd', help='Select the optimizer to use for training')
-parser.add_argument('-w', '--weights', type=str, help='Location of the weights to be loaded for the given model')
-parser.add_argument('-bw', '--builtin_weights', type=str, choices=network.SUPPORTED_WEIGHTS, help='Select the weights to be loaded for the given model')
-parser.add_argument('-ct', '--classification_type', type=str, choices=utils.CLASSIFICATION_TYPES, default=utils.CLASSIFICATION_TYPES[0], help='Select the classification_type for training')
-parser.add_argument('-es', '--early_stopping', dest='early_stopping', action='store_true', help='Stop training training when validation accuracy has stopped improving.')
-parser.add_argument('-lr', '--learning_rate', type=float, default=0.01, help='Increase the rate of gradient step size by increasing value.')
-parser.add_argument('-do1', '--dropout1', type=float, default=0.0, help='Increase the rate of regularization by increasing percentage of nodes to drop on first FC layer')
-parser.add_argument('-do2', '--dropout2', type=float, default=0.0, help='Increase the rate of regularization by increasing percentage of nodes to drop on second FC layer')
-parser.add_argument('-ls1', '--l2_strength1', type=float, default=0.0, help='Increase to increase the regularization strength on first FC layer.')
-parser.add_argument('-ls2', '--l2_strength2', type=float, default=0.0, help='Increase to increase the regularization strength on second FC layer.')
-parser.add_argument('-m', '--momentum', type=float, default=0.9, help='Increase to increase the momentum effect of stochastic optimizers.')
-parser.add_argument('-nest', '--nesterov', type=bool, default=True, help='Use True to apply nesterov momentum')
-parser.add_argument('-d', '--decay', type=float, default=1e-6, help='Increase to speed up the rate at which the learning rate shrinks')
-parser.add_argument('-e', '--epsilon', type=float, default=None, help='Fuzz factor, for use with Adam and Adagrad optimizers')
-    '''
     return hp
 
 
@@ -60,12 +43,11 @@ class HP:
     self.nesterov = nesterov
     self.decay = decay
     self.epsilon = epsilon
+
+
 def run_and_loss(num_iters, hp):
 
-
-    BATCH_SIZE = 32
     EPOCHS = num_iters
-    random.seed(42)
     hypdict = HP(hp[0], hp[1],hp[2],hp[3], hp[4], hp[5], hp[6], hp[7], hp[8], hp[9], hp[10])
 
     class Timer(Callback):
@@ -179,4 +161,5 @@ for s in reversed(range(s_max+1)):
         vl = np.argsort(val_losses)[0:int(n_i/eta)]
         vl = np.array(vl)
         T = [T[i] for i in vl]
-        gc.collect()
+    if s % 10 == 0:
+        K.clear_session()
