@@ -32,7 +32,7 @@ parser.add_argument('-ep', '--epochs', type=int, default=50, help='The number of
 args = parser.parse_args()
 
 EPOCHS = args.epochs
-BATCH_SIZE = 32
+BATCH_SIZE = 64
 random.seed(42)
 
 class Timer(Callback):
